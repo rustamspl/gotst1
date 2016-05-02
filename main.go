@@ -4,9 +4,11 @@ func main() {
 	mgr := makeMgr()
 	//mgr.readBits([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0})4
 
-	mgr.readStr("привет")
-	mgr.printCtx()
-	mgr.readStr("привет")
-	mgr.printCtx()
+	mgr.readStr("а").print()
+	mgr.readStr("б").print()
+	mgr.readStr("аб").print()
+	mgr.readStr("wабабабd").print()
+	mgr.readStr("а").print()
+
 	//mgr.readBits([]byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0})
 }

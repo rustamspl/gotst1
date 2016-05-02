@@ -42,7 +42,7 @@ func (mgr *Mgr) readBit(bit byte) {
 	cur := mgr.ctx.root.next
 	for i := mgr.ctx.len - 1; i > 0; i-- {
 		next := cur.next
-		curNode := mgr.linkNodes(next.node, cur.node)
+		curNode := mgr.linkSameSizeNodes(next.node, cur.node)
 		if curNode != nil {
 			next.node = curNode
 			mgr.ctx.remove(cur)
@@ -53,22 +53,45 @@ func (mgr *Mgr) readBit(bit byte) {
 	}
 
 }
-func (mgr *Mgr) linkNodes(a, b *Node) *Node {
+func (mgr *Mgr) linkSameSizeNodes(a, b *Node) *Node {
 	if c, has := a.plus[b]; has {
 		return c
 	}
 
 	if a.size == b.size {
-		c := mgr.makeNode(a.size + b.size)
-		a.plus[b] = c
-		c.minus[b] = a
-		//fmt.Println(c.id, "=", a.id, "+", b.id)
-		return c
+		return mgr.makeLink(a, b)
 	}
 
 	return nil
 }
-func (mgr *Mgr) readStr(s string) {
+func (mgr *Mgr) makeLink(a, b *Node) *Node {
+	c := mgr.makeNode(a.size + b.size)
+	a.plus[b] = c
+	c.minus[b] = a
+	//fmt.Println(c.id, "=", a.id, "+", b.id)
+	return c
+}
+
+func (mgr *Mgr) linkCtxNodes() *Node {
+	if mgr.ctx.len > 1 {
+		cur := mgr.ctx.root.next
+		for mgr.ctx.len > 1 {
+			next := cur.next
+
+			if c, has := next.node.plus[cur.node]; has {
+				next.node = c
+			} else {
+				next.node = mgr.makeLink(next.node, cur.node)
+			}
+			mgr.ctx.remove(cur)
+			cur = next
+		}
+	}
+	return mgr.ctx.root.next.node
+
+}
+func (mgr *Mgr) readStr(s string) *Node {
+	mgr.ctx.clear()
 	for _, v := range s {
 		t := v
 		for i := 0; i < 16; i++ {
@@ -77,6 +100,7 @@ func (mgr *Mgr) readStr(s string) {
 			t = t >> 1
 		}
 	}
+	return mgr.linkCtxNodes()
 
 }
 func (mgr *Mgr) printCtx() {

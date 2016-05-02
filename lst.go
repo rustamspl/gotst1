@@ -34,6 +34,16 @@ func (lst *Lst) remove(e *Lnk) {
 	lst.len--
 }
 
+func (lst *Lst) clear() {
+	for i, cur := lst.len, lst.root.next; i > 0; i, cur = i-1, cur.next {
+		cur.prev.next = nil
+		cur.prev = nil
+	}
+	lst.root.next = lst.root
+	lst.root.prev = lst.root
+	lst.len = 0
+}
+
 func (lst *Lst) PushFront(node *Node) {
 	lnk := &Lnk{}
 	lnk.node = node
