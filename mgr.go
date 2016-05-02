@@ -6,12 +6,13 @@ type Mgr struct {
 	seq          int
 	node0, node1 *Node
 	ctx          *Lst
-	nn           int
 }
 
 func (mgr *Mgr) makeNode(size int) *Node {
 	node := Node{size: size}
 	node.id = mgr.seq
+	node.plus = make(map[*Node]*Node)
+	node.minus = make(map[*Node]*Node)
 	mgr.seq++
 	return &node
 }
@@ -56,17 +57,14 @@ func (mgr *Mgr) readBit(bit byte) {
 }
 func (mgr *Mgr) linkNodes(a, b *Node) *Node {
 	if a.size == b.size {
-		if a.top != nil {
-			if a.top.right == b || a.top.left == b {
-				return a.top
-			}
+		if c, has := a.plus[b]; has {
+			return c
 		} else {
-			a.top = mgr.makeNode(a.size + b.size)
-			b.top
-			a.top.left = a
-			a.top.right = b
-			fmt.Println(a.top.id, "=", a.id, "+", b.id)
-			return a.top
+			c := mgr.makeNode(a.size + b.size)
+			a.plus[b] = c
+			c.minus[b] = a
+			fmt.Println(c.id, "=", a.id, "+", b.id)
+			return c
 		}
 	}
 	return nil
